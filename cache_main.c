@@ -66,13 +66,13 @@ int cache_line(char* line)
     args[1] = strtok(NULL, delimiters); 
     unsigned address = atoi(args[1]);
     
-    if (l1_lookup(address))
+    if (cache_lookup(address, L1))
     // L1 Hit
     {
         printf("L1 Hit for %#010x\n", address);
         L1_hit++;
     }
-    else if (l2_lookup(address))
+    else if (cache_lookup(address, L2))
     // L1 Miss, L2 Hit
     {
         printf("L1 Miss, L2 Hit for %#010x\n", address);

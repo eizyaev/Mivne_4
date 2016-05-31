@@ -19,12 +19,37 @@ struct _cache
     int** LRU; // LRU 2 dimentional array
 };
 
-bool l1_lookup(unsigned address)
+bool cache_lookup(unsigned address, cache* Cach)
+{
+    int set = find_set(address, Cach); // TODO
+    int way = find_way(address, Cach); // TODO
+    int block_ad = find_block_address(address, Cach); // TODO
+    if (Cach->chart[set][way].valid && Cach->chart[set][way].b_adr == block_ad)
+    {
+        update_LRU(); // TODO
+        return true;
+    }
+    else
+    {
+        if (not full)
+        {
+            Cach->chart[set][way].valid = true;
+            Cach->chart[set][way].b_adr = block_ad; // update cache
+            update_LRU(); // TODO
+        }
+        else
+        {
+            evict(address, L1);
+            insert info;
+            update_LRU();
+        }
+        return false;
+    }
+}
+
+bool l2_lookup(unsigned address)
 {
 
-
-
-    return true;
 }
 
 /* Init function for a cache 
