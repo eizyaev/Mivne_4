@@ -46,6 +46,7 @@ int main(int argc, char *argv[])
     // closing opened file
     fclose(trace);
 
+    // TODO: prints final statistics
     return 0;
 }
 
@@ -66,13 +67,15 @@ int cache_line(char* line)
     args[1] = strtok(NULL, delimiters); 
     unsigned address = atoi(args[1]);
     
-    if (cache_lookup(address, L1))
+    /* L1 update */
+    if (lookup_l1(address))
     // L1 Hit
     {
         printf("L1 Hit for %#010x\n", address);
         L1_hit++;
     }
-    else if (cache_lookup(address, L2))
+    /* L2 update, L1 evict (if needed) */
+    else if (lookup_l2(address))
     // L1 Miss, L2 Hit
     {
         printf("L1 Miss, L2 Hit for %#010x\n", address);
@@ -83,6 +86,7 @@ int cache_line(char* line)
     // L1, L2 Missed
     {
         printf("L1 Miss, L2 Miss for %#010x\n", address);
+        L1_miss++;
         L2_miss++;
     }
     
