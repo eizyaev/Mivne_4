@@ -19,15 +19,16 @@ struct _cache
     block** chart; // 2 dimentional block's array
 };
 
+//given block_ad(excluding the offset) and cache(L) returns the set
 int get_set(unsigned block_ad,cache* L){
 
     return (block_ad)%((int)pow((double)2, L->c_size-(L->c_assoc+L->b_size)));
 }
-
+//given an address and a cache returns the address without the offset (shift)
 unsigned get_block_address(unsigned address,cache *L){
     return address>>L->b_size;
 }
-
+//given a set, way and a cache updates the LRU of the relevant line
 void update_LRU(int set, int way,cache* L){
     int w;
     for(w=0;w<(int)pow((double)2, L->c_assoc);++w)
@@ -35,7 +36,9 @@ void update_LRU(int set, int way,cache* L){
             L->chart[set][w].lru++;
     L->chart[set][way].lru=0;
 }
-
+/*given a cache,set,block_ad(Excludingoffset). if the block is in the cache
+ * then return the way, otherwise allocates the block
+ * in the first empty way or evicts last recently used way and allocates the block there*/
 bool find_block(cache* L, int set, unsigned block_ad, int *way){
     int w;
     int ways_num=(int)pow((double)2, L->c_assoc);
@@ -58,6 +61,7 @@ bool find_block(cache* L, int set, unsigned block_ad, int *way){
         }
     return false;
 }
+// lookup for address in l1 and update cache in case it doesn't exist
 bool l1_lookup(unsigned address)
 {
 
@@ -77,7 +81,8 @@ bool l1_lookup(unsigned address)
         return false;
     }
 }
-
+/* lookup for address in l2 and update cache in case it doesn't exist,
+in case evict is needed in L2 then evict also in L1 (inclusiveness)*/
 bool l2_lookup(unsigned address)
 {
     int way = -1;
@@ -100,7 +105,7 @@ bool l2_lookup(unsigned address)
     }
 }
 
-/* evicts if needed block from L1 to maintain inclusivness with L2 */
+/* evicts if needed block from L1 to maintain inclusiveness with L2 */
 void evict_l1(unsigned block_ad)
 {
     int way;
