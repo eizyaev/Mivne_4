@@ -14,5 +14,5 @@ cache.o: cache.c cache.h
 	$(CC) $(CFLAGS) -c cache.c
 # Cleaning old files before new make
 clean:
-	$(RM) $(TARGET) *.o *~ "#"* cacheSim.*
+	$(RM) $(TARGET) *.o *~ "#"* cacheSim*
 
