@@ -18,5 +18,6 @@ void update_LRU(int set, int way, cache* L);
 bool find_block(cache* L, int set, unsigned block_ad, int *way);
 unsigned get_block_address(unsigned address, cache* L);
 int get_set(unsigned block_ad, cache* L);
+void evict_l1(unsigned block_ad); 
 
 #endif

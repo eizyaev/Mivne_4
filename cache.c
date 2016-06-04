@@ -80,7 +80,34 @@ bool l1_lookup(unsigned address)
 
 bool l2_lookup(unsigned address)
 {
+    int set = get_set(address, L2); // TODO
+    int way = -1;
+    int block_ad = get_block_address(address, L2); // TODO
+    if (find_block(L2, set, block_ad, &way)) // TODO
+    {
+        update_LRU(set, way, L2); // TODO
+        return true;
+    }
+    else
+    {
+        
+        if (L2->chart[set][way].valid == true) // evict l1
+            evict_l1(chart[set][way].b_adr); 
 
+        L2->chart[set][way].valid = true;
+        L2->chart[set][way].b_adr = block_ad; // update cache
+        update_LRU(set, way, L2); // TODO
+        return false;
+    }
+}
+
+/* evicts if needed block from L1 to maintain inclusivness with L2 */
+void evict_l1(unsigned block_ad)
+{
+    int way;
+    int set = get_set(block_ad, L1);
+    if (find_block(L1, set, block_ad, &way))
+        L1->chart[set][way].valid = false;
 }
 
 /* Init function for a cache 
