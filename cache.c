@@ -19,21 +19,61 @@ struct _cache
     block** chart; // 2 dimentional block's array
 };
 
+int get_set(int block_ad,cache* L){
+
+	return (block_ad)%((int)pow((double)2, L->c_size-(L->c_assoc+L->b_size)));
+}
+
+unsigned get_block_address(unsigned address,cache *L){
+  return address>>L->b_size;
+}
+
+void update_LRU(int set, int way,cache* L){
+	int w;
+	for(w=0;w<(int)pow((double)2, L->c_assoc);++w)
+		if(L->chart[set][w].lru < L->chart[set][way].lru && L->chart[set][w].valid)
+			L->chart[set][w].lru++;
+	L->chart[set][way].lru=0;
+}
+
+bool find_block(cache* L, int set, unsigned block_ad, int *way){
+	int w;
+	int ways_num=(int)pow((double)2, L->c_assoc);
+	for(w=0;w<ways_num;++w)
+		if(L->chart[set][w].b_adr==block_ad && L->chart[set][w].valid){
+			&way=w;
+			return true;
+		}
+
+	for(w=0;w<ways_num;++w)
+		if(!L->chart[set][w].valid){
+			&way=w;
+			return false;
+		}
+
+	for(w=0;w<ways_num;++w)
+		if(L->chart[set][w].lru==ways_num-1){
+			&way=w;
+			return false;
+		}
+	return false;
+}
 bool l1_lookup(unsigned address)
 {
-    int set = get_set(address, L1); // TODO
+
     int way = -1;
-    int block_ad = get_block_address(address, L1); // TODO
-    if (find_block(L1, set, block_ad, &way)) // TODO
+    unsigned block_ad = get_block_address(address, L1);
+    int set = get_set(block_ad, L1);
+    if (find_block(L1, set, block_ad, &way))
     {
-        update_LRU(set, way, block_ad, L1); // TODO
+        update_LRU(set, way, L1);
         return true;
     }
     else
     {
         L1->chart[set][way].valid = true;
         L1->chart[set][way].b_adr = block_ad; // update cache
-        update_LRU(set, way, block_ad, L1); // TODO
+        update_LRU(set, way, L1);
         return false;
     }
 }
