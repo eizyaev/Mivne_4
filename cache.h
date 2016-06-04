@@ -13,7 +13,7 @@ extern cache* L2;
 cache* init_cache(int block_size,int l1_size,int l1_as);
 void free_caches();
 bool l1_lookup(unsigned address);
-bool l2_lookup(unsigned address); //TODO
+bool l2_lookup(unsigned address); 
 void update_LRU(int set, int way, cache* L);
 bool find_block(cache* L, int set, unsigned block_ad, int *way);
 unsigned get_block_address(unsigned address, cache* L);
