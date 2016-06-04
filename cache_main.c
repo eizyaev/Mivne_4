@@ -61,6 +61,8 @@ int main(int argc, char *argv[])
     printf("L1miss=%.3f L2miss=%.3f AccTimeAvg=%.3f\n", L1_rate, L2_rate, time/count);
 
     free_caches();
+    if (line)
+        free(line);
 
     // closing opened file
     fclose(trace);
