@@ -1,5 +1,8 @@
 *.swp
 *.o
 *.exe
+*.txt
 example*
 cmd
+test*
+Mega*
