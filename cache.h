@@ -19,10 +19,10 @@ cache* init_cache(int block_size,int l1_size,int l1_as);
 /* L1, L2 memory free function */
 void free_caches();
 // lookup for address in l1 and update cache in case it doesn't exist
-bool l1_lookup(unsigned address);
+bool l1_lookup(unsigned address, char* cmd);
 /* lookup for address in l2 and update cache in case it doesn't exist,
 in case evict is needed in L2 then evict also in L1 (inclusiveness)*/
-bool l2_lookup(unsigned address); 
+bool l2_lookup(unsigned address, char* cmd); 
 //given a set, way and a cache updates the LRU of the relevant line
 void update_LRU(int set, int way, cache* L);
 /*given a cache,set,block_ad(Excludingoffset). if the block is in the cache

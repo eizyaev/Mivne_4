@@ -133,11 +133,11 @@ int cache_line(char* line)
 	unsigned address = strtol(args[1], NULL, 16);
 
 	/* L1 update */
-	if (l1_lookup(address))
+	if (l1_lookup(address, args[0]))
 		// L1 Hit
 		L1_hit++;
 	/* L2 update, L1 evict (if needed) */
-	else if (l2_lookup(address))
+	else if (l2_lookup(address, args[0]))
 		// L1 Miss, L2 Hit
 	{
 		L1_miss++;

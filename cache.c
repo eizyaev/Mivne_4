@@ -5,6 +5,7 @@
 typedef struct _block
 {
     bool valid; // valid bit for block
+	bool dirty;
     unsigned b_adr; // block address
     int lru;
 
@@ -62,7 +63,7 @@ bool find_block(cache* L, int set, unsigned block_ad, int *way){
     return false;
 }
 // lookup for address in l1 and update cache in case it doesn't exist
-bool l1_lookup(unsigned address)
+bool l1_lookup(unsigned address, char* cmd)
 {
 
     int way = -1;
@@ -70,27 +71,41 @@ bool l1_lookup(unsigned address)
     int set = get_set(block_ad, L1);
     if (find_block(L1, set, block_ad, &way))
     {
+		if (!strcmp(cmd, "w"))
+			L1->chart[set][way].dirty = true;
         update_LRU(set, way, L1);
         return true;
     }
     else
-    {
-        L1->chart[set][way].valid = true;
-        L1->chart[set][way].b_adr = block_ad; // update cache
-        update_LRU(set, way, L1);
         return false;
-    }
 }
 /* lookup for address in l2 and update cache in case it doesn't exist,
 in case evict is needed in L2 then evict also in L1 (inclusiveness)*/
-bool l2_lookup(unsigned address)
+bool l2_lookup(unsigned address, char* cmd)
 {
     int way = -1;
+	int way2 = -1;
+	int way3 = -1;
     int block_ad = get_block_address(address, L2); 
     int set = get_set(block_ad, L2); 
+    int set2 = get_set(block_ad, L1); 
+	int set3;
     if (find_block(L2, set, block_ad, &way)) 
     {
         update_LRU(set, way, L2); 
+		find_block(L1, set2, block_ad, &way2);
+		if (L1->chart[set2][way2].valid && L1->chart[set2][way2].dirty)
+		{
+			set3 = get_set(L1->chart[set2][way2].b_adr, L2); 
+			find_block(L2, set3, L1->chart[set2][way2].b_adr, &way3);
+			update_LRU(set3, way3, L2);
+			L1->chart[set2][way2].dirty = false;
+		}
+		if (!strcmp(cmd, "w"))
+			L1->chart[set2][way2].dirty = true;
+		L1->chart[set2][way2].valid = true;
+		L1->chart[set2][way2].b_adr = block_ad;
+		update_LRU(set2, way2, L1);
         return true;
     }
     else
@@ -101,6 +116,20 @@ bool l2_lookup(unsigned address)
         L2->chart[set][way].valid = true;
         L2->chart[set][way].b_adr = block_ad; // update cache
         update_LRU(set, way, L2); 
+
+		find_block(L1, set2, block_ad, &way2);
+		if (L1->chart[set2][way2].valid && L1->chart[set2][way2].dirty)
+		{
+			set3 = get_set(L1->chart[set2][way2].b_adr, L2); 
+			find_block(L2, set3, L1->chart[set2][way2].b_adr, &way3);
+			update_LRU(set3, way3, L2);
+			L1->chart[set2][way2].dirty = false;
+		}
+		if (!strcmp(cmd, "w"))
+			L1->chart[set2][way2].dirty = true;
+		L1->chart[set2][way2].valid = true;
+		L1->chart[set2][way2].b_adr = block_ad;
+		update_LRU(set2, way2, L1);
         return false;
     }
 }
@@ -111,7 +140,10 @@ void evict_l1(unsigned block_ad)
     int way;
     int set = get_set(block_ad, L1);
     if (find_block(L1, set, block_ad, &way))
+	{
         L1->chart[set][way].valid = false;
+        L1->chart[set][way].dirty = false;
+	}
 }
 
 /* Init function for a cache 
@@ -162,6 +194,7 @@ cache* init_cache(int block_size,int size,int assoc)
             new_cache->chart[i][j].valid = false; // valid false
             new_cache->chart[i][j].b_adr = 0; // init block address
             new_cache->chart[i][j].lru = j; // init LRU priority from left way to right 0,..#ways
+			new_cache->chart[i][j].dirty = false;
         }
     }
 
