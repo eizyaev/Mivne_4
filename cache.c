@@ -90,14 +90,18 @@ bool l2_lookup(unsigned address, char* cmd)
     int set = get_set(block_ad, L2); 
     int set2 = get_set(block_ad, L1); 
 	int set3;
-    if (find_block(L2, set, block_ad, &way)) 
+	// L2 hit
+	if (find_block(L2, set, block_ad, &way)) 
     {
+		// update lru L2
         update_LRU(set, way, L2); 
 		find_block(L1, set2, block_ad, &way2);
+		// L1 to evict is dirty
 		if (L1->chart[set2][way2].valid && L1->chart[set2][way2].dirty)
 		{
 			set3 = get_set(L1->chart[set2][way2].b_adr, L2); 
 			find_block(L2, set3, L1->chart[set2][way2].b_adr, &way3);
+			// update lru L2 for L1 wb of dirty
 			update_LRU(set3, way3, L2);
 			L1->chart[set2][way2].dirty = false;
 		}
@@ -105,23 +109,29 @@ bool l2_lookup(unsigned address, char* cmd)
 			L1->chart[set2][way2].dirty = true;
 		L1->chart[set2][way2].valid = true;
 		L1->chart[set2][way2].b_adr = block_ad;
+		// update lru L1
 		update_LRU(set2, way2, L1);
         return true;
     }
+	// L2 miss
     else
     {
+		// evict from L2 -> maybe evict L1
         if (L2->chart[set][way].valid == true) // evict l1
             evict_l1(L2->chart[set][way].b_adr); 
 
+		// update L2
         L2->chart[set][way].valid = true;
         L2->chart[set][way].b_adr = block_ad; // update cache
         update_LRU(set, way, L2); 
 
 		find_block(L1, set2, block_ad, &way2);
+		// L1 to evict dirty
 		if (L1->chart[set2][way2].valid && L1->chart[set2][way2].dirty)
 		{
 			set3 = get_set(L1->chart[set2][way2].b_adr, L2); 
 			find_block(L2, set3, L1->chart[set2][way2].b_adr, &way3);
+			// update lru L2 for L1 wb dirty
 			update_LRU(set3, way3, L2);
 			L1->chart[set2][way2].dirty = false;
 		}
@@ -129,6 +139,7 @@ bool l2_lookup(unsigned address, char* cmd)
 			L1->chart[set2][way2].dirty = true;
 		L1->chart[set2][way2].valid = true;
 		L1->chart[set2][way2].b_adr = block_ad;
+		// update lru L1
 		update_LRU(set2, way2, L1);
         return false;
     }
