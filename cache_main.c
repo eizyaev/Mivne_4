@@ -16,7 +16,6 @@ cache* L2; // L2 cache
 
 int main(int argc, char *argv[])
 {
-	printf("num args: %d\n", argc);
 	// minimum arguments check
 	if (argc < 18)
 	{
@@ -77,6 +76,11 @@ int main(int argc, char *argv[])
 	{
 		fprintf(stderr, "illegal arguments\n");
 		exit(1);
+	}
+	if (l1_size > l2_size)
+	{
+		fprintf(stderr, "l1 cant be bigger than l2\n");
+		exit(2);
 	}
 
 	// Initialize Caches L1,L2

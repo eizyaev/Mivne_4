@@ -96,7 +96,7 @@ bool l2_lookup(unsigned address)
     else
     {
         if (L2->chart[set][way].valid == true) // evict l1
-            evict_l1(L1->chart[set][way].b_adr); 
+            evict_l1(L2->chart[set][way].b_adr); 
 
         L2->chart[set][way].valid = true;
         L2->chart[set][way].b_adr = block_ad; // update cache
